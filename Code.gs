@@ -45,6 +45,16 @@ const SHEET_HISTORY       = "History";        // per-corridor leg log (diagnosti
 const SHEET_INDEX_HISTORY = "IndexHistory";   // per-city index log (powers the trend charts)
 const INDEX_HISTORY_RETENTION_DAYS = 8;       // keep just over a week, then prune
 
+/**
+ * If true, every corridor lookup also excludes limited-access highways/
+ * expressways from the route (in addition to the mandatory city-centre
+ * waypoint below). This makes it even harder for Google to sneak the
+ * route onto a ring road, but can occasionally produce a slightly odd
+ * route on local roads. Try it both ways and see which matches what you
+ * actually experience driving through your cities.
+ */
+const AVOID_HIGHWAYS = true;
+
 const CORRIDORS = [
   { pair: "E-W",   from: "E",  to: "W"  },
   { pair: "N-S",   from: "N",  to: "S"  },
@@ -59,12 +69,13 @@ function setup() {
 
   if (!ss.getSheetByName(SHEET_CITIES)) {
     const sh = ss.insertSheet(SHEET_CITIES);
-    sh.appendRow(["City", "State", "Tier", "N", "S", "E", "W", "NE", "NW", "SE", "SW"]);
+    sh.appendRow(["City", "State", "Tier", "N", "S", "E", "W", "NE", "NW", "SE", "SW", "Center"]);
     sh.appendRow(["Delhi", "Delhi NCR", 1,
       "Kundli Border, NH44", "Badarpur Border, NH19",
       "Ghazipur Border, NH9", "Dwarka Expressway Toll, NH48",
       "Loni Border, NH9", "Bawana-Narela Border",
-      "Kalindi Kunj Border", "Rajokri Border, NH48"]);
+      "Kalindi Kunj Border", "Rajokri Border, NH48",
+      "Connaught Place, New Delhi"]);
   }
   if (!ss.getSheetByName(SHEET_LATEST)) {
     const sh = ss.insertSheet(SHEET_LATEST);
@@ -114,6 +125,7 @@ function runAllCities() {
         N: row[idx("N")], S: row[idx("S")], E: row[idx("E")], W: row[idx("W")],
         NE: row[idx("NE")], NW: row[idx("NW")], SE: row[idx("SE")], SW: row[idx("SW")]
       },
+      center: row[idx("Center")],
       legs: []
     };
 
@@ -123,7 +135,7 @@ function runAllCities() {
       const origin = city.borders[c.from];
       const destination = city.borders[c.to];
       const cacheKey = "leg_" + city.id + "_" + c.pair;
-      let leg = fetchCorridor(origin, destination, c.pair, city.name);
+      let leg = fetchCorridor(origin, destination, city.center, c.pair, city.name);
 
       if (!leg) {
         // Fall back to last known good value so one bad lookup
@@ -185,27 +197,42 @@ function runAllCities() {
 
 /* ---------------- Helpers ---------------- */
 
-function fetchCorridor(origin, destination, pairLabel, cityName) {
+function fetchCorridor(origin, destination, centerWaypoint, pairLabel, cityName) {
   if (!origin || !destination) return null;
   try {
-    const directions = Maps.newDirectionFinder()
+    let finder = Maps.newDirectionFinder()
       .setOrigin(origin)
       .setDestination(destination)
       .setMode(Maps.DirectionFinder.Mode.DRIVING)
-      .setDepart(new Date()) // forces traffic-aware duration
-      .getDirections();
+      .setDepart(new Date()); // forces traffic-aware duration
 
+    // Force the route through the city centre so Google can't quietly
+    // reroute via an outer ring road / bypass to dodge core congestion.
+    if (centerWaypoint) {
+      finder = finder.addWaypoint(centerWaypoint);
+    }
+    if (AVOID_HIGHWAYS) {
+      finder = finder.setAvoid(Maps.DirectionFinder.Avoid.HIGHWAYS);
+    }
+
+    const directions = finder.getDirections();
     if (!directions.routes || !directions.routes.length) return null;
-    const leg = directions.routes[0].legs[0];
 
-    // duration_in_traffic isn't always exposed by the Apps Script wrapper;
-    // fall back to duration (already traffic-biased because setDepart is set).
-    const durationSeconds = (leg.duration_in_traffic && leg.duration_in_traffic.value)
-      ? leg.duration_in_traffic.value
-      : leg.duration.value;
+    // IMPORTANT: once a waypoint is added, the route splits into multiple
+    // legs (origin->center, center->destination) instead of one. Sum all
+    // of them so distance/time cover the FULL corridor, not just half.
+    const legs = directions.routes[0].legs;
+    let distanceMeters = 0;
+    let durationSeconds = 0;
+    legs.forEach(leg => {
+      distanceMeters += leg.distance.value;
+      durationSeconds += (leg.duration_in_traffic && leg.duration_in_traffic.value)
+        ? leg.duration_in_traffic.value
+        : leg.duration.value;
+    });
 
     return {
-      distance_km: round2(leg.distance.value / 1000),
+      distance_km: round2(distanceMeters / 1000),
       duration_min: Math.round(durationSeconds / 60)
     };
   } catch (e) {
