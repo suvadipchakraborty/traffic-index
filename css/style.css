@@ -5,21 +5,23 @@
    ========================================================= */
 
 :root {
-  /* Colour tokens */
-  --asphalt:        #14161a;
-  --asphalt-2:       #1c1f25;
-  --asphalt-3:       #262a31;
-  --lane-line:       #3a3f47;
-  --chalk:           #f3f1ea;
-  --chalk-dim:       #b9b6ac;
-  --muted:           #8a8f98;
+  /* Colour tokens — "daytime asphalt" road palette */
+  --asphalt:        #52565c;
+  --asphalt-2:      #60646a;
+  --asphalt-3:      #6b6f76;
+  --asphalt-4:      #797d84;
+  --lane-line:      #82868d;
+  --chalk:          #f8f6f0;
+  --chalk-dim:      #dedcd4;
+  --muted:          #b3b7bd;
 
   --milestone-yellow:#f4b400;
   --milestone-yellow-deep:#c98e00;
-  --signal-green:    #2fa84f;
-  --caution-amber:   #f2994a;
-  --alert-red:       #e5484d;
-  --severe-red:      #8c1f24;
+  --signal-green:    #3fc06a;
+  --caution-amber:   #f5a54e;
+  --alert-red:       #f2555b;
+  --severe-red:      #c81e27;
+  --sign-red:        #d1272f;
 
   /* Type */
   --font-display: 'Oswald', 'Arial Narrow', sans-serif;
@@ -36,7 +38,10 @@ html { -webkit-tap-highlight-color: transparent; }
 
 body {
   margin: 0;
-  background: var(--asphalt);
+  background:
+    repeating-linear-gradient(115deg, rgba(255,255,255,0.035) 0px, rgba(255,255,255,0.035) 1px, transparent 1px, transparent 5px),
+    repeating-linear-gradient(25deg, rgba(0,0,0,0.05) 0px, rgba(0,0,0,0.05) 1px, transparent 1px, transparent 6px),
+    var(--asphalt);
   color: var(--chalk);
   font-family: var(--font-body);
   line-height: 1.5;
@@ -102,6 +107,34 @@ a { color: inherit; }
   color: var(--chalk-dim);
 }
 
+.speed-sign {
+  margin-left: auto;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #fdfcf9;
+  border: 4px solid var(--sign-red);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #16181b;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.speed-sign-num {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 19px;
+}
+.speed-sign-unit {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  margin-top: 1px;
+}
+
 h1.headline {
   font-family: var(--font-display);
   font-weight: 600;
@@ -139,7 +172,7 @@ h1.headline em {
   height: 8px;
   border-radius: 50%;
   background: var(--signal-green);
-  box-shadow: 0 0 0 0 rgba(47,168,79,0.6);
+  box-shadow: 0 0 0 0 rgba(63,192,106,0.6);
   animation: pulse 2.4s infinite;
   flex-shrink: 0;
 }
@@ -149,9 +182,9 @@ h1.headline em {
 }
 
 @keyframes pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(47,168,79,0.55); }
-  70%  { box-shadow: 0 0 0 8px rgba(47,168,79,0); }
-  100% { box-shadow: 0 0 0 0 rgba(47,168,79,0); }
+  0%   { box-shadow: 0 0 0 0 rgba(63,192,106,0.55); }
+  70%  { box-shadow: 0 0 0 8px rgba(63,192,106,0); }
+  100% { box-shadow: 0 0 0 0 rgba(63,192,106,0); }
 }
 
 .live-ticker-text { font-size: 13px; color: var(--chalk-dim); }
@@ -178,6 +211,60 @@ h1.headline em {
   text-transform: uppercase;
   font-family: var(--font-body);
 }
+
+/* ---------- Lane divider (road-marking section break) ---------- */
+
+.lane-divider {
+  height: 3px;
+  margin: 14px 0;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--milestone-yellow) 0px,
+    var(--milestone-yellow) 18px,
+    transparent 18px,
+    transparent 34px
+  );
+  border-radius: 2px;
+  opacity: 0.85;
+}
+
+/* ---------- Ranking chart ---------- */
+
+.ranking-section { padding: 18px 0 6px; }
+
+.ranking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.ranking-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.ranking-note {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+  margin-top: 4px;
+}
+
+.ranking-sub {
+  color: var(--chalk-dim);
+  font-size: 13px;
+  margin: 6px 0 12px;
+}
+
+.ranking-wrap { padding: 12px 12px 8px; }
+
+.rank-label { fill: var(--chalk-dim); font-family: var(--font-mono); font-size: 9px; }
+.rank-value { fill: var(--chalk); font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; }
+.rank-track { fill: rgba(0,0,0,0.18); }
 
 /* ---------- Controls ---------- */
 
@@ -351,10 +438,10 @@ h1.headline em {
   border-radius: 20px;
 }
 
-.level-free     .level-tag { background: rgba(47,168,79,0.15); color: var(--signal-green); }
-.level-moderate .level-tag { background: rgba(242,153,74,0.15); color: var(--caution-amber); }
-.level-heavy    .level-tag { background: rgba(229,72,77,0.15); color: var(--alert-red); }
-.level-severe   .level-tag { background: rgba(140,31,36,0.25); color: #ff8b8f; }
+.level-free     .level-tag { background: rgba(63,192,106,0.18); color: var(--signal-green); }
+.level-moderate .level-tag { background: rgba(245,165,78,0.18); color: var(--caution-amber); }
+.level-heavy    .level-tag { background: rgba(242,85,91,0.18); color: var(--alert-red); }
+.level-severe   .level-tag { background: rgba(200,30,39,0.28); color: #ffb0b3; }
 
 .trend {
   font-family: var(--font-mono);
@@ -660,9 +747,11 @@ h1.headline em {
   color: var(--chalk-dim);
 }
 .legend-swatch {
-  width: 12px; height: 12px;
-  border-radius: 3px;
+  width: 13px; height: 13px;
+  border-radius: 2px;
   flex-shrink: 0;
+  transform: rotate(45deg);
+  border: 1.5px solid rgba(255,255,255,0.35);
 }
 
 .caveat-box {
@@ -748,9 +837,11 @@ footer .credit { color: var(--chalk-dim); margin-top: 4px; }
 
 .bottom-nav {
   position: fixed;
-  bottom: 0; left: 0; right: 0;
+  bottom: 0; left: 0;
+  right: 90px; /* leave room for the Netlify badge floating bottom-right */
   background: var(--asphalt-2);
   border-top: 1px solid var(--lane-line);
+  border-radius: 0 12px 0 0;
   display: flex;
   z-index: 40;
   padding-bottom: env(safe-area-inset-bottom, 0);
