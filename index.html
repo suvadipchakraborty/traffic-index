@@ -13,48 +13,48 @@
 
 <div class="wrap">
 
-  <!-- ============ HERO / HEADER ============ -->
-  <header class="hero">
-    <div class="hero-inner">
-      <div class="brand-row">
-        <div class="brand-mark">GITI</div>
-        <div class="brand-name">The Great Indian Traffic Index</div>
-        <div class="speed-sign" aria-hidden="true">
-          <span class="speed-sign-num">1</span>
-          <span class="speed-sign-unit">KM</span>
-        </div>
-      </div>
-      <h1 class="headline">How much older will<br>you be in <em>1&nbsp;km</em>?</h1>
-      <p class="hero-sub">A live congestion index for India's Tier&nbsp;1 and Tier&nbsp;2 cities — because measuring urban mobility in distance is wildly optimistic. We track the only metric that matters: minutes of your life lost per kilometre travelled.</p>
-
-      <div class="live-ticker">
-        <span class="live-dot" aria-hidden="true"></span>
-        <span class="live-ticker-text">Refreshed hourly · last update <strong id="lastUpdated">—</strong></span>
-        <div class="national-index">
-          <span>National avg</span>
-          <span id="nationalIndex">—</span>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- ============ CITY RANKING (all cities, unfiltered) ============ -->
-  <section class="ranking-section">
-    <div class="lane-divider" aria-hidden="true"></div>
-    <div class="ranking-header">
-      <div>
-        <div class="page-eyebrow" style="margin-bottom:2px;">Right now</div>
-        <h2 class="ranking-title">Congestion ranking</h2>
-      </div>
-      <span class="ranking-note" id="rankingNote"></span>
-    </div>
-    <p class="ranking-sub">Every tracked city, most to least congested, as of the latest hourly refresh.</p>
-    <div class="chart-wrap ranking-wrap" id="rankingChart"><div class="chart-loading">Loading ranking…</div></div>
-    <div class="lane-divider" aria-hidden="true"></div>
-  </section>
-
-  <!-- ============ HOME VIEW ============ -->
+  <!-- ============ HOME VIEW (hero + ranking + city grid, all Index-tab only) ============ -->
   <main id="view-home" class="view active">
+
+    <!-- HERO / HEADER -->
+    <header class="hero">
+      <div class="hero-inner">
+        <div class="brand-row">
+          <div class="brand-mark">GITI</div>
+          <div class="brand-name">The Great Indian Traffic Index</div>
+          <div class="speed-sign" aria-hidden="true">
+            <span class="speed-sign-num">1</span>
+            <span class="speed-sign-unit">KM</span>
+          </div>
+        </div>
+        <h1 class="headline">How much older will<br>you be in <em>1&nbsp;km</em>?</h1>
+        <p class="hero-sub">A live congestion index for India's Tier&nbsp;1 and Tier&nbsp;2 cities — because measuring urban mobility in distance is wildly optimistic. We track the only metric that matters: minutes of your life lost per kilometre travelled.</p>
+
+        <div class="live-ticker">
+          <span class="live-dot" aria-hidden="true"></span>
+          <span class="live-ticker-text">Refreshed hourly · last update <strong id="lastUpdated">—</strong></span>
+          <div class="national-index">
+            <span>National avg</span>
+            <span id="nationalIndex">—</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- CITY RANKING (all cities, unfiltered) -->
+    <section class="ranking-section">
+      <div class="lane-divider" aria-hidden="true"></div>
+      <div class="ranking-header">
+        <div>
+          <div class="page-eyebrow" style="margin-bottom:2px;">Right now</div>
+          <h2 class="ranking-title">Congestion ranking</h2>
+        </div>
+        <span class="ranking-note" id="rankingNote"></span>
+      </div>
+      <p class="ranking-sub">Every tracked city, most to least congested, as of the latest hourly refresh.</p>
+      <div class="chart-wrap ranking-wrap" id="rankingChart"><div class="chart-loading">Loading ranking…</div></div>
+      <div class="lane-divider" aria-hidden="true"></div>
+    </section>
 
     <div class="controls">
       <input type="search" id="citySearch" class="search-input" placeholder="Search a city (e.g. Pune, Kochi)" aria-label="Search city">
@@ -74,6 +74,8 @@
         <option value="name-asc">City name (A–Z)</option>
       </select>
     </div>
+
+    <p class="grid-hint">Click on a card to view traffic trends</p>
 
     <div id="cityGrid" class="city-grid" aria-live="polite"></div>
     <div id="emptyState" class="empty-state" style="display:none;">No cities match your search.</div>
