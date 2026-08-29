@@ -846,11 +846,9 @@ footer .credit { color: var(--chalk-dim); margin-top: 4px; }
 
 .bottom-nav {
   position: fixed;
-  bottom: 0; left: 0;
-  right: 90px; /* leave room for the Netlify badge floating bottom-right */
+  bottom: 0; left: 0; right: 0;
   background: var(--asphalt-2);
   border-top: 1px solid var(--lane-line);
-  border-radius: 0 12px 0 0;
   display: flex;
   z-index: 40;
   padding-bottom: env(safe-area-inset-bottom, 0);
