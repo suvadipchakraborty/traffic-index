@@ -56,9 +56,9 @@ async function loadData() {
 
 function renderAll() {
   if (!state.raw) return;
-  renderTicker();
-  renderRankingChart();
-  renderGrid();
+  try { renderTicker(); } catch (err) { console.error("renderTicker failed:", err); }
+  try { renderRankingChart(); } catch (err) { console.error("renderRankingChart failed:", err); }
+  try { renderGrid(); } catch (err) { console.error("renderGrid failed:", err); }
 }
 
 /* ---------- Ticker ---------- */
@@ -460,9 +460,9 @@ function scheduleRefresh() {
 /* ---------- Init ---------- */
 
 document.addEventListener("DOMContentLoaded", () => {
-  wireControls();
-  wireNav();
-  wireFeedback();
+  try { wireControls(); } catch (err) { console.error("wireControls failed:", err); }
+  try { wireNav(); } catch (err) { console.error("wireNav failed:", err); }
+  try { wireFeedback(); } catch (err) { console.error("wireFeedback failed:", err); }
   loadData();
   scheduleRefresh();
 });
