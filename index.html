@@ -19,9 +19,13 @@
       <div class="brand-row">
         <div class="brand-mark">GITI</div>
         <div class="brand-name">The Great Indian Traffic Index</div>
+        <div class="speed-sign" aria-hidden="true">
+          <span class="speed-sign-num">1</span>
+          <span class="speed-sign-unit">KM</span>
+        </div>
       </div>
-      <h1 class="headline">How far can<br><em>1 km</em> take you today?</h1>
-      <p class="hero-sub">A live congestion index for India's Tier&nbsp;1 and Tier&nbsp;2 cities — measured the way traffic actually feels: minutes spent per kilometre travelled.</p>
+      <h1 class="headline">How much older will<br>you be in <em>1&nbsp;km</em>?</h1>
+      <p class="hero-sub">A live congestion index for India's Tier&nbsp;1 and Tier&nbsp;2 cities — because measuring urban mobility in distance is wildly optimistic. We track the only metric that matters: minutes of your life lost per kilometre travelled.</p>
 
       <div class="live-ticker">
         <span class="live-dot" aria-hidden="true"></span>
@@ -33,6 +37,21 @@
       </div>
     </div>
   </header>
+
+  <!-- ============ CITY RANKING (all cities, unfiltered) ============ -->
+  <section class="ranking-section">
+    <div class="lane-divider" aria-hidden="true"></div>
+    <div class="ranking-header">
+      <div>
+        <div class="page-eyebrow" style="margin-bottom:2px;">Right now</div>
+        <h2 class="ranking-title">Congestion ranking</h2>
+      </div>
+      <span class="ranking-note" id="rankingNote"></span>
+    </div>
+    <p class="ranking-sub">Every tracked city, most to least congested, as of the latest hourly refresh.</p>
+    <div class="chart-wrap ranking-wrap" id="rankingChart"><div class="chart-loading">Loading ranking…</div></div>
+    <div class="lane-divider" aria-hidden="true"></div>
+  </section>
 
   <!-- ============ HOME VIEW ============ -->
   <main id="view-home" class="view active">
