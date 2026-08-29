@@ -22,6 +22,13 @@ const state = {
 
 /* ---------- Congestion bands ---------- */
 
+const LEVEL_COLORS = {
+  free: "#3fc06a",
+  moderate: "#f5a54e",
+  heavy: "#f2555b",
+  severe: "#c81e27"
+};
+
 function levelFor(index) {
   if (index < 2.5) return { key: "free", label: "Free flow" };
   if (index < 4)   return { key: "moderate", label: "Moderate" };
@@ -50,6 +57,7 @@ async function loadData() {
 function renderAll() {
   if (!state.raw) return;
   renderTicker();
+  renderRankingChart();
   renderGrid();
 }
 
@@ -62,6 +70,52 @@ function renderTicker() {
   document.getElementById("lastUpdated").textContent = timeStr;
   document.getElementById("nationalIndex").textContent =
     (national_average_index != null ? national_average_index.toFixed(2) : "—") + " min/km";
+}
+
+/* ---------- Ranking chart (all cities, most to least congested) ---------- */
+
+function renderRankingChart() {
+  const container = document.getElementById("rankingChart");
+  const note = document.getElementById("rankingNote");
+  const cities = state.raw.cities.filter(c => c.index != null).slice().sort((a, b) => b.index - a.index);
+
+  if (!cities.length) {
+    container.innerHTML = `<div class="chart-loading">No data yet.</div>`;
+    return;
+  }
+
+  const d = new Date(state.raw.generated_at);
+  note.textContent = isNaN(d) ? "" : "as of " + d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+
+  const W = 320;
+  const rowH = 26;
+  const padTop = 6;
+  const labelW = 92;
+  const valueW = 34;
+  const barAreaW = W - labelW - valueW;
+  const maxVal = Math.max(...cities.map(c => c.index)) * 1.05;
+  const H = padTop * 2 + cities.length * rowH;
+
+  const rows = cities.map((c, i) => {
+    const y = padTop + i * rowH;
+    const barW = Math.max(3, (c.index / maxVal) * barAreaW);
+    const color = LEVEL_COLORS[levelFor(c.index).key];
+    const label = c.name.length > 13 ? c.name.slice(0, 12) + "…" : c.name;
+    return `
+      <text class="rank-label" x="0" y="${y + rowH / 2 + 3}">${i + 1}. ${label}</text>
+      <rect class="rank-track" x="${labelW}" y="${y + 5}" width="${barAreaW}" height="${rowH - 10}" rx="4"></rect>
+      <rect x="${labelW}" y="${y + 5}" width="${barW}" height="${rowH - 10}" rx="4" fill="${color}">
+        <title>${c.name}: ${c.index.toFixed(2)} min/km</title>
+      </rect>
+      <text class="rank-value" x="${labelW + barAreaW + valueW - 2}" y="${y + rowH / 2 + 3}" text-anchor="end">${c.index.toFixed(2)}</text>
+    `;
+  }).join("");
+
+  container.innerHTML = `
+    <svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="City congestion ranking">
+      ${rows}
+    </svg>
+  `;
 }
 
 /* ---------- Grid ---------- */
@@ -160,11 +214,11 @@ async function openSheet(cityId) {
   tag.textContent = lvl.label;
   tag.className = "level-tag";
   tag.style.background = {
-    free: "rgba(47,168,79,0.15)", moderate: "rgba(242,153,74,0.15)",
-    heavy: "rgba(229,72,77,0.15)", severe: "rgba(140,31,36,0.25)"
+    free: "rgba(63,192,106,0.18)", moderate: "rgba(245,165,78,0.18)",
+    heavy: "rgba(242,85,91,0.18)", severe: "rgba(200,30,39,0.28)"
   }[lvl.key];
   tag.style.color = {
-    free: "#2fa84f", moderate: "#f2994a", heavy: "#e5484d", severe: "#ff8b8f"
+    free: "#3fc06a", moderate: "#f5a54e", heavy: "#f2555b", severe: "#ffb0b3"
   }[lvl.key];
 
   const compass = document.getElementById("compass");
