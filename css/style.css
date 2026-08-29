@@ -457,6 +457,15 @@ h1.headline em {
   font-size: 14px;
 }
 
+.grid-hint {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 4px 0 10px;
+}
+
 /* ---------- City detail (modal sheet) ---------- */
 
 .sheet-backdrop {
