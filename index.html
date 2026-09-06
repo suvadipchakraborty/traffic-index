@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Indian Traffic League</title>
-<meta name="description" content="Live-ish traffic congestion index for major Indian cities, measured in minutes per kilometre across each city's eight border points.">
+<title>Indian Traffic Premier League (ITPL)</title>
+<meta name="description" content="Live-ish traffic congestion league table for India's biggest cities, measured in minutes per kilometre across each city's eight border points.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
@@ -20,22 +20,22 @@
     <header class="hero">
       <div class="hero-inner">
         <div class="brand-row">
-          <div class="brand-mark">ITL</div>
-          <div class="brand-name">The Great Indian Traffic League</div>
+          <div class="brand-mark">ITPL</div>
+          <div class="brand-name">Indian Traffic Premier League</div>
           <div class="speed-sign" aria-hidden="true">
             <span class="speed-sign-num">1</span>
             <span class="speed-sign-unit">KM</span>
           </div>
         </div>
         <h1 class="headline">How much older will<br>you be in <em>1&nbsp;km</em>?</h1>
-        <p class="hero-sub">A live congestion index for India's Tier&nbsp;1 and Tier&nbsp;2 cities — because measuring urban mobility in distance is wildly optimistic. We track the only metric that matters: minutes of your life lost per kilometre travelled. Who is winning the Indian Traffic League?</p>
+        <p class="hero-sub">A live congestion league table for India's biggest cities â€” because measuring urban mobility in distance is wildly optimistic. We track the only metric that matters: minutes of your life lost per kilometre travelled.</p>
 
         <div class="live-ticker">
           <span class="live-dot" aria-hidden="true"></span>
-          <span class="live-ticker-text">Refreshed hourly · last update <strong id="lastUpdated">—</strong></span>
+          <span class="live-ticker-text">Refreshed hourly Â· last update <strong id="lastUpdated">â€”</strong></span>
           <div class="national-index">
             <span>National avg</span>
-            <span id="nationalIndex">—</span>
+            <span id="nationalIndex">â€”</span>
           </div>
         </div>
       </div>
@@ -52,26 +52,49 @@
         <span class="ranking-note" id="rankingNote"></span>
       </div>
       <p class="ranking-sub">Every tracked city, most to least congested, as of the latest hourly refresh.</p>
-      <div class="chart-wrap ranking-wrap" id="rankingChart"><div class="chart-loading">Loading ranking…</div></div>
+      <div class="chart-wrap ranking-wrap" id="rankingChart"><div class="chart-loading">Loading rankingâ€¦</div></div>
+    </section>
+
+    <!-- WEEKLY RANKING (avg index over the last 7 days) -->
+    <section class="ranking-section">
+      <div class="lane-divider" aria-hidden="true"></div>
+      <div class="ranking-header">
+        <div>
+          <div class="page-eyebrow" style="margin-bottom:2px;">Past 7 days</div>
+          <h2 class="ranking-title">Weekly league table</h2>
+        </div>
+        <span class="ranking-note" id="weeklyRankingNote"></span>
+      </div>
+      <p class="ranking-sub">Every tracked city, ranked by its average index across the last 7 days â€” the bigger picture behind this hour's snapshot.</p>
+      <div class="chart-wrap ranking-wrap" id="weeklyRankingChart"><div class="chart-loading">Loading weekly rankingâ€¦</div></div>
+    </section>
+
+    <!-- TIME-OF-DAY HEATMAP -->
+    <section class="ranking-section">
+      <div class="lane-divider" aria-hidden="true"></div>
+      <div class="ranking-header">
+        <div>
+          <div class="page-eyebrow" style="margin-bottom:2px;">Past 7 days</div>
+          <h2 class="ranking-title">Time-of-day heatmap</h2>
+        </div>
+        <span class="ranking-note" id="heatmapNote"></span>
+      </div>
+      <p class="ranking-sub">Average index by 2â€“4 hour window, city by city, over the last full week. Darker red = worse. Swipe sideways to see all time slots.</p>
+      <div class="heatmap-wrap" id="heatmapView"><div class="chart-loading">Loading heatmapâ€¦</div></div>
       <div class="lane-divider" aria-hidden="true"></div>
     </section>
 
     <div class="controls">
       <input type="search" id="citySearch" class="search-input" placeholder="Search a city (e.g. Pune, Kochi)" aria-label="Search city">
-      <div class="tier-toggle" role="group" aria-label="Filter by city tier">
-        <button data-tier="all" class="active">All</button>
-        <button data-tier="1">Tier 1</button>
-        <button data-tier="2">Tier 2</button>
-      </div>
     </div>
 
     <div class="sort-row">
-      <span id="cityCount">— cities</span>
+      <span id="cityCount">â€” cities</span>
       <label for="sortSelect" class="sr-only">Sort cities</label>
       <select id="sortSelect">
         <option value="index-desc">Most congested first</option>
         <option value="index-asc">Free-flowing first</option>
-        <option value="name-asc">City name (A–Z)</option>
+        <option value="name-asc">City name (Aâ€“Z)</option>
       </select>
     </div>
 
@@ -94,7 +117,7 @@
       <div class="method-num">1</div>
       <div class="method-body">
         <h3>Fix eight border points</h3>
-        <p>Every city gets eight reference points sitting roughly at its outer limits: North, South, East, West, North-East, North-West, South-East and South-West — typically toll plazas, checkposts or well-known junctions at the city boundary.</p>
+        <p>Every city gets eight reference points sitting roughly at its outer limits: North, South, East, West, North-East, North-West, South-East and South-West â€” typically toll plazas, checkposts or well-known junctions at the city boundary.</p>
       </div>
     </div>
 
@@ -104,10 +127,10 @@
         <h3>Drive four corridors, not eight legs</h3>
         <p>The eight points form four opposite pairs. We pull live, traffic-aware driving distance and duration for each pair:</p>
         <ul>
-          <li>East → West</li>
-          <li>North → South</li>
-          <li>North-East → South-West</li>
-          <li>North-West → South-East</li>
+          <li>East â†’ West</li>
+          <li>North â†’ South</li>
+          <li>North-East â†’ South-West</li>
+          <li>North-West â†’ South-East</li>
         </ul>
         <p>Together these four corridors cut through the city centre from every compass direction, giving a fair read on congestion regardless of which side of town you're on.</p>
       </div>
@@ -126,8 +149,8 @@
       <div class="method-body">
         <h3>Convert to one number: minutes per kilometre</h3>
         <p>We add up the distance of all four corridors and the traffic-aware time it takes to drive them, then divide time by distance:</p>
-        <div class="formula-box">Index (min/km) = Total travel time (min) ÷ Total distance (km)</div>
-        <p>A city where the index reads 4.5 means: on average, expect roughly four-and-a-half minutes for every kilometre travelled along its main cross-city routes right now. Lower is better — it means traffic is moving freely.</p>
+        <div class="formula-box">Index (min/km) = Total travel time (min) Ã· Total distance (km)</div>
+        <p>A city where the index reads 4.5 means: on average, expect roughly four-and-a-half minutes for every kilometre travelled along its main cross-city routes right now. Lower is better â€” it means traffic is moving freely.</p>
       </div>
     </div>
 
@@ -141,14 +164,14 @@
 
     <h3 style="font-family:var(--font-display);text-transform:uppercase;font-size:16px;margin:26px 0 4px;">Reading the congestion bands</h3>
     <div class="legend-grid">
-      <div class="legend-item"><span class="legend-swatch" style="background:var(--signal-green)"></span>Free flow — under 2.5 min/km</div>
-      <div class="legend-item"><span class="legend-swatch" style="background:var(--caution-amber)"></span>Moderate — 2.5 to 4 min/km</div>
-      <div class="legend-item"><span class="legend-swatch" style="background:var(--alert-red)"></span>Heavy — 4 to 6 min/km</div>
-      <div class="legend-item"><span class="legend-swatch" style="background:var(--severe-red)"></span>Severe — above 6 min/km</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--signal-green)"></span>Free flow â€” under 2.5 min/km</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--caution-amber)"></span>Moderate â€” 2.5 to 4 min/km</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--alert-red)"></span>Heavy â€” 4 to 6 min/km</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--severe-red)"></span>Severe â€” above 6 min/km</div>
     </div>
 
     <div class="caveat-box">
-      <strong>Honest limitations.</strong> Border points approximate a city's outer limits and are periodically reviewed as cities grow — they are reference markers, not administrative boundaries. Because the index averages just four corridors, it describes overall cross-city conditions, not any single street or your specific route. Treat it as a city-level pulse check, not a substitute for live navigation before you drive.
+      <strong>Honest limitations.</strong> Border points approximate a city's outer limits and are periodically reviewed as cities grow â€” they are reference markers, not administrative boundaries. Because the index averages just four corridors, it describes overall cross-city conditions, not any single street or your specific route. Treat it as a city-level pulse check, not a substitute for live navigation before you drive.
     </div>
   </section>
 
@@ -167,16 +190,16 @@
       <input class="feedback-input" id="fbSubject" type="text" placeholder="Subject, e.g. Wrong border point for Nagpur">
       <label class="sr-only" for="fbMessage">Message</label>
       <textarea class="feedback-input" id="fbMessage" placeholder="Tell us what you noticed or what you'd like to see..."></textarea>
-      <button class="btn-primary" id="sendFeedback">Open in email app →</button>
+      <button class="btn-primary" id="sendFeedback">Open in email app â†’</button>
     </div>
 
     <div class="contact-card">
       <h3>What's useful to include</h3>
       <ul style="font-size:13.5px;color:var(--chalk-dim);padding-left:18px;margin:0;">
-        <li>A city you'd like added, tier 1 or tier 2</li>
+        <li>A city you'd like added to the tracked list</li>
         <li>A better/more accurate border checkpoint for an existing city</li>
         <li>Bugs, confusing numbers, or anything that looks off</li>
-        <li>Feature ideas — trends, city comparisons, alerts, etc.</li>
+        <li>Feature ideas â€” trends, city comparisons, alerts, etc.</li>
       </ul>
     </div>
   </section>
@@ -186,14 +209,14 @@
 <!-- ============ CITY DETAIL SHEET ============ -->
 <div id="sheetBackdrop" class="sheet-backdrop" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
   <div class="sheet" style="position:relative;">
-    <button class="sheet-close" id="sheetClose" aria-label="Close">✕</button>
+    <button class="sheet-close" id="sheetClose" aria-label="Close">âœ•</button>
     <div class="sheet-handle"></div>
     <div class="sheet-state" id="sheetState"></div>
     <h2 class="sheet-title" id="sheetTitle"></h2>
 
     <div class="sheet-index-big">
       <span class="val" id="sheetIndexVal"></span>
-      <span class="unit">min / km · <span id="sheetLevel"></span></span>
+      <span class="unit">min / km Â· <span id="sheetLevel"></span></span>
     </div>
     <div class="level-tag" id="sheetLevelTag" style="display:inline-block;"></div>
 
@@ -209,7 +232,7 @@
         <h3>Last 24 hours</h3>
         <span class="trend-note" id="trend24Note"></span>
       </div>
-      <div class="chart-wrap" id="chart24h"><div class="chart-loading">Loading trend…</div></div>
+      <div class="chart-wrap" id="chart24h"><div class="chart-loading">Loading trendâ€¦</div></div>
     </div>
 
     <div class="trend-section">
@@ -217,7 +240,7 @@
         <h3>Last 7 days <span class="trend-sub">(latest hour each day)</span></h3>
         <span class="trend-note" id="trend7dNote"></span>
       </div>
-      <div class="chart-wrap" id="chart7d"><div class="chart-loading">Loading trend…</div></div>
+      <div class="chart-wrap" id="chart7d"><div class="chart-loading">Loading trendâ€¦</div></div>
     </div>
 
     <div class="sheet-note">Distances and times are pulled with a live departure time, so they reflect current traffic rather than the free-flow baseline. Figures update every hour.</div>
@@ -248,7 +271,7 @@
 
 <div class="wrap">
   <footer>
-    <div>The Great Indian Traffic Index · data refreshes hourly</div>
+    <div>Indian Traffic Premier League (ITPL) Â· data refreshes hourly</div>
     <div class="credit">Created by Suva</div>
   </footer>
 </div>
