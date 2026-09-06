@@ -1,3 +1,4 @@
+
 /* =========================================================
    The Great Indian Traffic Index
    Design system: "Highway Milestone"
@@ -5,7 +6,7 @@
    ========================================================= */
 
 :root {
-  /* Colour tokens — "daytime asphalt" road palette */
+  /* Colour tokens â€” "daytime asphalt" road palette */
   --asphalt:        #52565c;
   --asphalt-2:      #60646a;
   --asphalt-3:      #6b6f76;
@@ -61,7 +62,6 @@ a { color: inherit; }
   max-width: var(--max-width);
   margin: 0 auto;
   padding: 0 16px;
-  overflow-x: hidden;
 }
 
 /* ---------- Header / Hero ---------- */
@@ -241,10 +241,9 @@ h1.headline em {
 
 .ranking-header {
   display: flex;
-  flex-wrap: wrap;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 6px 10px;
+  gap: 10px;
 }
 
 .ranking-title {
@@ -274,19 +273,69 @@ h1.headline em {
 .rank-value { fill: var(--chalk); font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; }
 .rank-track { fill: rgba(0,0,0,0.18); }
 
+/* ---------- Heatmap ---------- */
+
+.heatmap-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--lane-line);
+  border-radius: var(--radius);
+  background: var(--asphalt-2);
+}
+
+.heatmap-table {
+  border-collapse: collapse;
+  width: max-content;
+  min-width: 100%;
+}
+
+.heatmap-table th,
+.heatmap-table td {
+  padding: 9px 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-align: center;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--lane-line);
+}
+
+.heatmap-table th {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.heat-city,
+.heat-city-header {
+  position: sticky;
+  left: 0;
+  background: var(--asphalt-2);
+  text-align: left;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 12px;
+  z-index: 1;
+  border-right: 1px solid var(--lane-line);
+}
+
+.heat-cell { font-weight: 600; }
+.heat-empty { color: var(--muted); font-weight: 400; }
+
+.heatmap-table tbody tr:last-child td { border-bottom: none; }
+
 /* ---------- Controls ---------- */
 
 .controls {
   display: flex;
-  flex-wrap: wrap;
   gap: 8px;
   padding: 18px 0 6px;
   align-items: center;
 }
 
 .search-input {
-  flex: 1 1 140px;
-  min-width: 0;
+  flex: 1;
   background: var(--asphalt-2);
   border: 1px solid var(--lane-line);
   color: var(--chalk);
@@ -299,38 +348,6 @@ h1.headline em {
 .search-input:focus {
   outline: none;
   border-color: var(--milestone-yellow);
-}
-
-.tier-toggle {
-  display: flex;
-  background: var(--asphalt-2);
-  border: 1px solid var(--lane-line);
-  border-radius: var(--radius);
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.tier-toggle button {
-  background: transparent;
-  border: none;
-  color: var(--chalk-dim);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  padding: 11px 10px;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-@media (max-width: 380px) {
-  .search-input { flex-basis: 100%; }
-  .tier-toggle { flex: 1; }
-  .tier-toggle button { flex: 1; padding: 10px 6px; font-size: 11px; }
-}
-
-.tier-toggle button.active {
-  background: var(--milestone-yellow);
-  color: var(--asphalt);
-  font-weight: 600;
 }
 
 .sort-row {
@@ -408,16 +425,6 @@ h1.headline em {
   color: var(--muted);
   font-size: 12px;
   margin-top: 2px;
-}
-
-.tier-badge {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--asphalt);
-  background: var(--chalk-dim);
-  border-radius: 3px;
-  padding: 2px 6px;
-  flex-shrink: 0;
 }
 
 .card-index-row {
@@ -825,11 +832,6 @@ input.feedback-input {
   margin-top: 10px;
 }
 textarea.feedback-input { min-height: 100px; resize: vertical; }
-
-.feedback-input::placeholder {
-  color: var(--chalk-dim);
-  opacity: 1; /* Firefox dims placeholders by default */
-}
 
 .btn-primary {
   display: inline-flex;
