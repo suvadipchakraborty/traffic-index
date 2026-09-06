@@ -7,7 +7,6 @@
       "id": "delhi",
       "name": "Delhi",
       "state": "Delhi NCR",
-      "tier": 1,
       "borders": {
         "N": "Kundli Border, NH44",
         "S": "Badarpur Border, NH19",
@@ -31,7 +30,6 @@
       "id": "mumbai",
       "name": "Mumbai",
       "state": "Maharashtra",
-      "tier": 1,
       "borders": {
         "N": "Mira-Bhayandar Check Naka",
         "S": "Colaba Point",
@@ -55,7 +53,6 @@
       "id": "bengaluru",
       "name": "Bengaluru",
       "state": "Karnataka",
-      "tier": 1,
       "borders": {
         "N": "Yelahanka Toll, NH44",
         "S": "Electronic City Toll, NH44",
@@ -79,7 +76,6 @@
       "id": "chennai",
       "name": "Chennai",
       "state": "Tamil Nadu",
-      "tier": 1,
       "borders": {
         "N": "Ennore Port Junction",
         "S": "Tambaram Toll",
@@ -103,7 +99,6 @@
       "id": "kolkata",
       "name": "Kolkata",
       "state": "West Bengal",
-      "tier": 1,
       "borders": {
         "N": "Dunlop Bridge, Barrackpore Trunk Rd",
         "S": "Garia More",
@@ -127,7 +122,6 @@
       "id": "hyderabad",
       "name": "Hyderabad",
       "state": "Telangana",
-      "tier": 1,
       "borders": {
         "N": "Medchal Toll, NH44",
         "S": "Shamshabad Airport Toll",
@@ -151,7 +145,6 @@
       "id": "pune",
       "name": "Pune",
       "state": "Maharashtra",
-      "tier": 1,
       "borders": {
         "N": "Moshi Toll, Pune-Nashik Hwy",
         "S": "Katraj Tunnel",
@@ -175,7 +168,6 @@
       "id": "ahmedabad",
       "name": "Ahmedabad",
       "state": "Gujarat",
-      "tier": 1,
       "borders": {
         "N": "Chandkheda Circle",
         "S": "Narol Toll",
@@ -199,7 +191,6 @@
       "id": "jaipur",
       "name": "Jaipur",
       "state": "Rajasthan",
-      "tier": 2,
       "borders": {
         "N": "Chomu Circle, NH48",
         "S": "Sanganer Toll",
@@ -223,7 +214,6 @@
       "id": "lucknow",
       "name": "Lucknow",
       "state": "Uttar Pradesh",
-      "tier": 2,
       "borders": {
         "N": "Gomti Nagar Extension",
         "S": "Amausi Airport Junction",
@@ -247,7 +237,6 @@
       "id": "kochi",
       "name": "Kochi",
       "state": "Kerala",
-      "tier": 2,
       "borders": {
         "N": "Aluva Toll, NH66",
         "S": "Thrippunithura Junction",
@@ -271,7 +260,6 @@
       "id": "chandigarh",
       "name": "Chandigarh",
       "state": "Chandigarh (UT)",
-      "tier": 2,
       "borders": {
         "N": "Kansal Border",
         "S": "Zirakpur Junction",
@@ -295,7 +283,6 @@
       "id": "indore",
       "name": "Indore",
       "state": "Madhya Pradesh",
-      "tier": 2,
       "borders": {
         "N": "Rau Toll",
         "S": "Mhow Naka",
@@ -319,7 +306,6 @@
       "id": "coimbatore",
       "name": "Coimbatore",
       "state": "Tamil Nadu",
-      "tier": 2,
       "borders": {
         "N": "Mettupalayam Road Toll",
         "S": "Sundarapuram Junction",
