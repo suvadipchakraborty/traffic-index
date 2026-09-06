@@ -1,5 +1,5 @@
 /* =========================================================
-   The Great Indian Traffic Index — app.js
+   Indian Traffic Premier League (ITPL) â€” app.js
    Swap DATA_SOURCE.API_URL for your deployed Apps Script
    /exec URL once the backend (see /backend/Code.gs) is live.
    Until then the app runs on the bundled sample dataset.
@@ -13,9 +13,13 @@ const DATA_SOURCE = {
   REFRESH_MS: 60 * 60 * 1000 // 1 hour
 };
 
+// Must exactly match the bucket boundaries used in Code.gs's bucketForHour().
+const HEATMAP_BUCKET_LABELS = ["6-8 AM", "8-10 AM", "10-12 PM", "12-4 PM", "4-6 PM", "6-8 PM", "8-10 PM", "10-12 AM"];
+
 const state = {
   raw: null,
-  tier: "all",
+  weekly: null,
+  heatmap: null,
   query: "",
   sort: "index-desc"
 };
@@ -52,6 +56,8 @@ async function loadData() {
     }
   }
   renderAll();
+  loadWeeklyRanking();
+  loadHeatmap();
 }
 
 function renderAll() {
@@ -66,48 +72,48 @@ function renderAll() {
 function renderTicker() {
   const { generated_at, national_average_index } = state.raw;
   const d = new Date(generated_at);
-  const timeStr = isNaN(d) ? "—" : d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+  const timeStr = isNaN(d) ? "â€”" : d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
   document.getElementById("lastUpdated").textContent = timeStr;
   document.getElementById("nationalIndex").textContent =
-    (national_average_index != null ? national_average_index.toFixed(2) : "—") + " min/km";
+    (national_average_index != null ? national_average_index.toFixed(2) : "â€”") + " min/km";
 }
 
 /* ---------- Ranking chart (all cities, most to least congested) ---------- */
 
-function renderRankingChart() {
-  const container = document.getElementById("rankingChart");
-  const note = document.getElementById("rankingNote");
-  const cities = state.raw.cities.filter(c => c.index != null).slice().sort((a, b) => b.index - a.index);
-
-  if (!cities.length) {
+/**
+ * Renders a horizontal bar-chart ranking into containerId. items must be
+ * objects with {name, value}. Shared by both the "right now" ranking and
+ * the "past 7 days" weekly ranking below.
+ */
+function renderBarRanking(containerId, items) {
+  const container = document.getElementById(containerId);
+  if (!items.length) {
     container.innerHTML = `<div class="chart-loading">No data yet.</div>`;
     return;
   }
 
-  const d = new Date(state.raw.generated_at);
-  note.textContent = isNaN(d) ? "" : "as of " + d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
-
+  const sorted = items.slice().sort((a, b) => b.value - a.value);
   const W = 320;
   const rowH = 26;
   const padTop = 6;
   const labelW = 92;
   const valueW = 34;
   const barAreaW = W - labelW - valueW;
-  const maxVal = Math.max(...cities.map(c => c.index)) * 1.05;
-  const H = padTop * 2 + cities.length * rowH;
+  const maxVal = Math.max(...sorted.map(c => c.value)) * 1.05;
+  const H = padTop * 2 + sorted.length * rowH;
 
-  const rows = cities.map((c, i) => {
+  const rows = sorted.map((c, i) => {
     const y = padTop + i * rowH;
-    const barW = Math.max(3, (c.index / maxVal) * barAreaW);
-    const color = LEVEL_COLORS[levelFor(c.index).key];
-    const label = c.name.length > 13 ? c.name.slice(0, 12) + "…" : c.name;
+    const barW = Math.max(3, (c.value / maxVal) * barAreaW);
+    const color = LEVEL_COLORS[levelFor(c.value).key];
+    const label = c.name.length > 13 ? c.name.slice(0, 12) + "â€¦" : c.name;
     return `
       <text class="rank-label" x="0" y="${y + rowH / 2 + 3}">${i + 1}. ${label}</text>
       <rect class="rank-track" x="${labelW}" y="${y + 5}" width="${barAreaW}" height="${rowH - 10}" rx="4"></rect>
       <rect x="${labelW}" y="${y + 5}" width="${barW}" height="${rowH - 10}" rx="4" fill="${color}">
-        <title>${c.name}: ${c.index.toFixed(2)} min/km</title>
+        <title>${c.name}: ${c.value.toFixed(2)} min/km</title>
       </rect>
-      <text class="rank-value" x="${labelW + barAreaW + valueW - 2}" y="${y + rowH / 2 + 3}" text-anchor="end">${c.index.toFixed(2)}</text>
+      <text class="rank-value" x="${labelW + barAreaW + valueW - 2}" y="${y + rowH / 2 + 3}" text-anchor="end">${c.value.toFixed(2)}</text>
     `;
   }).join("");
 
@@ -118,14 +124,130 @@ function renderRankingChart() {
   `;
 }
 
+function renderRankingChart() {
+  const note = document.getElementById("rankingNote");
+  const items = state.raw.cities.filter(c => c.index != null).map(c => ({ name: c.name, value: c.index }));
+
+  const d = new Date(state.raw.generated_at);
+  note.textContent = isNaN(d) ? "" : "as of " + d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+
+  renderBarRanking("rankingChart", items);
+}
+
+/* ---------- Weekly ranking (avg index over the last 7 days) ---------- */
+
+async function loadWeeklyRanking() {
+  const note = document.getElementById("weeklyRankingNote");
+  let items = null;
+  let isLive = false;
+
+  if (DATA_SOURCE.API_URL) {
+    try {
+      const res = await fetch(`${DATA_SOURCE.API_URL}?weekly_ranking=1`, { cache: "no-store" });
+      if (res.ok) {
+        const json = await res.json();
+        if (json && json.cities && json.cities.length) {
+          items = json.cities.map(c => ({ name: c.name, value: c.avg_index }));
+          isLive = true;
+        }
+      }
+    } catch (err) {
+      console.warn("Weekly ranking fetch failed, using demo pattern.", err);
+    }
+  }
+
+  if (!items) {
+    // Demo fallback: nudge each city's current index by a small seeded
+    // amount so it looks like a plausible (but clearly labeled) weekly
+    // average rather than an identical copy of today's snapshot.
+    items = state.raw.cities.filter(c => c.index != null).map(c => {
+      const rand = seededNoise(c.id + "-weekly")();
+      return { name: c.name, value: round2(c.index * (0.94 + rand * 0.12)) };
+    });
+  }
+
+  note.textContent = isLive ? "Live from sheet" : "Demo pattern â€” connect backend for real history";
+  renderBarRanking("weeklyRankingChart", items);
+}
+
+/* ---------- Time-of-day heatmap (avg index per 2-4h window, last 7 days) ---------- */
+
+async function loadHeatmap() {
+  const note = document.getElementById("heatmapNote");
+  let cities = null;
+  let isLive = false;
+
+  if (DATA_SOURCE.API_URL) {
+    try {
+      const res = await fetch(`${DATA_SOURCE.API_URL}?heatmap=1`, { cache: "no-store" });
+      if (res.ok) {
+        const json = await res.json();
+        if (json && json.cities && json.cities.length) {
+          cities = json.cities; // [{id, name, values: [8 numbers or null]}]
+          isLive = true;
+        }
+      }
+    } catch (err) {
+      console.warn("Heatmap fetch failed, using demo pattern.", err);
+    }
+  }
+
+  if (!cities) {
+    // Demo fallback: derive 8 bucket values per city from the same
+    // hour-of-day curve used for the 24h trend chart, averaged per
+    // bucket, so the pattern still looks like real daily traffic shape.
+    const bucketHourRanges = [[6, 7], [8, 9], [10, 11], [12, 15], [16, 17], [18, 19], [20, 21], [22, 23]];
+    cities = state.raw.cities.filter(c => c.index != null).map(c => {
+      const rand = seededNoise(c.id + "-heatmap");
+      const base = c.index / (HOUR_MULTIPLIER[new Date().getHours()] || 1);
+      const values = bucketHourRanges.map(([start, end]) => {
+        let sum = 0, count = 0;
+        for (let h = start; h <= end; h++) { sum += HOUR_MULTIPLIER[h]; count++; }
+        const avgMult = sum / count;
+        return round2(base * avgMult * (0.94 + rand() * 0.12));
+      });
+      return { id: c.id, name: c.name, values };
+    });
+  }
+
+  note.textContent = isLive ? "Live from sheet" : "Demo pattern â€” connect backend for real history";
+  renderHeatmap(cities);
+}
+
+function renderHeatmap(cities) {
+  const container = document.getElementById("heatmapView");
+  if (!cities.length) {
+    container.innerHTML = `<div class="chart-loading">No data yet.</div>`;
+    return;
+  }
+
+  const headerCells = HEATMAP_BUCKET_LABELS.map(l => `<th>${l}</th>`).join("");
+
+  const bodyRows = cities.map(c => {
+    const cells = HEATMAP_BUCKET_LABELS.map((label, i) => {
+      const v = c.values[i];
+      if (v == null) {
+        return `<td class="heat-cell heat-empty">â€”</td>`;
+      }
+      const color = LEVEL_COLORS[levelFor(v).key];
+      return `<td class="heat-cell" style="background:${color}22; color:${color};" title="${c.name}, ${label}: ${v.toFixed(2)} min/km">${v.toFixed(1)}</td>`;
+    }).join("");
+    return `<tr><td class="heat-city">${c.name}</td>${cells}</tr>`;
+  }).join("");
+
+  container.innerHTML = `
+    <table class="heatmap-table">
+      <thead><tr><th class="heat-city-header">City</th>${headerCells}</tr></thead>
+      <tbody>${bodyRows}</tbody>
+    </table>
+  `;
+}
+
 /* ---------- Grid ---------- */
 
 function getFilteredSorted() {
   let cities = state.raw.cities.slice();
 
-  if (state.tier !== "all") {
-    cities = cities.filter(c => String(c.tier) === state.tier);
-  }
   if (state.query.trim()) {
     const q = state.query.trim().toLowerCase();
     cities = cities.filter(c => c.name.toLowerCase().includes(q) || c.state.toLowerCase().includes(q));
@@ -142,9 +264,9 @@ function getFilteredSorted() {
 }
 
 function trendArrow(trend) {
-  if (trend === "up") return "▲";
-  if (trend === "down") return "▼";
-  return "•";
+  if (trend === "up") return "â–²";
+  if (trend === "down") return "â–¼";
+  return "â€¢";
 }
 
 function renderGrid() {
@@ -170,7 +292,6 @@ function renderGrid() {
             <div class="card-city">${c.name}</div>
             <div class="card-state">${c.state}</div>
           </div>
-          <span class="tier-badge">TIER ${c.tier}</span>
         </div>
         <div class="card-index-row">
           <span class="card-index-value">${c.index.toFixed(2)}</span>
@@ -205,7 +326,7 @@ async function openSheet(cityId) {
   if (!city) return;
   const lvl = levelFor(city.index);
 
-  document.getElementById("sheetState").textContent = city.state + ` · Tier ${city.tier}`;
+  document.getElementById("sheetState").textContent = city.state;
   document.getElementById("sheetTitle").textContent = city.name;
   document.getElementById("sheetIndexVal").textContent = city.index.toFixed(2);
   document.getElementById("sheetLevel").textContent = lvl.label;
@@ -240,11 +361,11 @@ async function openSheet(cityId) {
       <div class="leg-row">
         <div>
           <div class="leg-pair">${leg.pair}</div>
-          <div class="leg-route">${leg.from} → ${leg.to}</div>
+          <div class="leg-route">${leg.from} â†’ ${leg.to}</div>
         </div>
         <div class="leg-nums">
-          ${leg.distance_km.toFixed(1)} km · ${leg.duration_min} min
-          <div class="kmh">≈ ${speedKmh} km/h avg</div>
+          ${leg.distance_km.toFixed(1)} km Â· ${leg.duration_min} min
+          <div class="kmh">â‰ˆ ${speedKmh} km/h avg</div>
         </div>
       </div>
     `;
@@ -265,7 +386,7 @@ function closeSheet() {
 async function loadTrend(city, range, containerId, noteId) {
   const container = document.getElementById(containerId);
   const note = document.getElementById(noteId);
-  container.innerHTML = `<div class="chart-loading">Loading trend…</div>`;
+  container.innerHTML = `<div class="chart-loading">Loading trendâ€¦</div>`;
 
   let points = null;
   let isLive = false;
@@ -290,7 +411,7 @@ async function loadTrend(city, range, containerId, noteId) {
     points = range === "24h" ? syntheticHistory24h(city) : syntheticHistory7d(city);
   }
 
-  note.textContent = isLive ? "Live from sheet" : "Demo pattern — connect backend for real history";
+  note.textContent = isLive ? "Live from sheet" : "Demo pattern â€” connect backend for real history";
 
   const labelFmt = range === "24h"
     ? p => new Date(p.t).toLocaleTimeString("en-IN", { hour: "2-digit", hour12: true }).replace(":00", "")
@@ -329,7 +450,7 @@ function syntheticHistory24h(city) {
   for (let i = 23; i >= 0; i--) {
     const t = new Date(now.getTime() - i * 3600000);
     const mult = HOUR_MULTIPLIER[t.getHours()];
-    const noise = 0.92 + rand() * 0.16; // ±8%
+    const noise = 0.92 + rand() * 0.16; // Â±8%
     points.push({ t: t.toISOString(), index: round2(base * mult * noise) });
   }
   return points;
@@ -403,15 +524,6 @@ function wireControls() {
     renderGrid();
   });
 
-  document.querySelectorAll(".tier-toggle button").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".tier-toggle button").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      state.tier = btn.dataset.tier;
-      renderGrid();
-    });
-  });
-
   document.getElementById("sortSelect").addEventListener("change", e => {
     state.sort = e.target.value;
     renderGrid();
@@ -435,7 +547,7 @@ function wireNav() {
       btn.classList.add("active");
       document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
       document.getElementById(`view-${btn.dataset.view}`).classList.add("active");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     });
   });
 }
@@ -444,7 +556,7 @@ function wireNav() {
 
 function wireFeedback() {
   document.getElementById("sendFeedback").addEventListener("click", () => {
-    const subject = document.getElementById("fbSubject").value || "Feedback: The Great Indian Traffic Index";
+    const subject = document.getElementById("fbSubject").value || "Feedback: Indian Traffic Premier League (ITPL)";
     const body = document.getElementById("fbMessage").value || "";
     const mailto = `mailto:suvadipchakraborty@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = mailto;
