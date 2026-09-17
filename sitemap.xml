@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://work-from-traffic.netlify.app/</loc><changefreq>hourly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://work-from-traffic.netlify.app/city/new-delhi/index.html</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://work-from-traffic.netlify.app/city/mumbai/index.html</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://work-from-traffic.netlify.app/city/bengaluru/index.html</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://work-from-traffic.netlify.app/city/chennai/index.html</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://work-from-traffic.netlify.app/city/kolkata/index.html</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://work-from-traffic.netlify.app/city/hyderabad/index.html</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://work-from-traffic.netlify.app/city/pune/index.html</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://work-from-traffic.netlify.app/city/ahmedabad/index.html</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://work-from-traffic.netlify.app/city/jaipur/index.html</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://work-from-traffic.netlify.app/city/lucknow/index.html</loc><changefreq>hourly</changefreq><priority>0.8</priority></url>
+</urlset>

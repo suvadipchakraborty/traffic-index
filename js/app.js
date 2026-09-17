@@ -1,5 +1,5 @@
 /* =========================================================
-   Indian Traffic Premier League (ITPL) â€” app.js
+   Indian Traffic Premier League (ITPL) — app.js
    Swap DATA_SOURCE.API_URL for your deployed Apps Script
    /exec URL once the backend (see /backend/Code.gs) is live.
    Until then the app runs on the bundled sample dataset.
@@ -72,10 +72,10 @@ function renderAll() {
 function renderTicker() {
   const { generated_at, national_average_index } = state.raw;
   const d = new Date(generated_at);
-  const timeStr = isNaN(d) ? "â€”" : d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+  const timeStr = isNaN(d) ? "—" : d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
   document.getElementById("lastUpdated").textContent = timeStr;
   document.getElementById("nationalIndex").textContent =
-    (national_average_index != null ? national_average_index.toFixed(2) : "â€”") + " min/km";
+    (national_average_index != null ? national_average_index.toFixed(2) : "—") + " min/km";
 }
 
 /* ---------- Ranking chart (all cities, most to least congested) ---------- */
@@ -106,7 +106,7 @@ function renderBarRanking(containerId, items) {
     const y = padTop + i * rowH;
     const barW = Math.max(3, (c.value / maxVal) * barAreaW);
     const color = LEVEL_COLORS[levelFor(c.value).key];
-    const label = c.name.length > 13 ? c.name.slice(0, 12) + "â€¦" : c.name;
+    const label = c.name.length > 13 ? c.name.slice(0, 12) + "…" : c.name;
     return `
       <text class="rank-label" x="0" y="${y + rowH / 2 + 3}">${i + 1}. ${label}</text>
       <rect class="rank-track" x="${labelW}" y="${y + 5}" width="${barAreaW}" height="${rowH - 10}" rx="4"></rect>
@@ -166,7 +166,7 @@ async function loadWeeklyRanking() {
     });
   }
 
-  note.textContent = isLive ? "Live from sheet" : "Demo pattern â€” connect backend for real history";
+  note.textContent = isLive ? "Live from sheet" : "Demo pattern — connect backend for real history";
   renderBarRanking("weeklyRankingChart", items);
 }
 
@@ -210,7 +210,7 @@ async function loadHeatmap() {
     });
   }
 
-  note.textContent = isLive ? "Live from sheet" : "Demo pattern â€” connect backend for real history";
+  note.textContent = isLive ? "Live from sheet" : "Demo pattern — connect backend for real history";
   renderHeatmap(cities);
 }
 
@@ -227,7 +227,7 @@ function renderHeatmap(cities) {
     const cells = HEATMAP_BUCKET_LABELS.map((label, i) => {
       const v = c.values[i];
       if (v == null) {
-        return `<td class="heat-cell heat-empty">â€”</td>`;
+        return `<td class="heat-cell heat-empty">—</td>`;
       }
       const color = LEVEL_COLORS[levelFor(v).key];
       return `<td class="heat-cell" style="background:${color}22; color:${color};" title="${c.name}, ${label}: ${v.toFixed(2)} min/km">${v.toFixed(1)}</td>`;
@@ -264,9 +264,9 @@ function getFilteredSorted() {
 }
 
 function trendArrow(trend) {
-  if (trend === "up") return "â–²";
-  if (trend === "down") return "â–¼";
-  return "â€¢";
+  if (trend === "up") return "▲";
+  if (trend === "down") return "▼";
+  return "•";
 }
 
 function renderGrid() {
@@ -361,11 +361,11 @@ async function openSheet(cityId) {
       <div class="leg-row">
         <div>
           <div class="leg-pair">${leg.pair}</div>
-          <div class="leg-route">${leg.from} â†’ ${leg.to}</div>
+          <div class="leg-route">${leg.from} → ${leg.to}</div>
         </div>
         <div class="leg-nums">
-          ${leg.distance_km.toFixed(1)} km Â· ${leg.duration_min} min
-          <div class="kmh">â‰ˆ ${speedKmh} km/h avg</div>
+          ${leg.distance_km.toFixed(1)} km · ${leg.duration_min} min
+          <div class="kmh">≈ ${speedKmh} km/h avg</div>
         </div>
       </div>
     `;
@@ -386,7 +386,7 @@ function closeSheet() {
 async function loadTrend(city, range, containerId, noteId) {
   const container = document.getElementById(containerId);
   const note = document.getElementById(noteId);
-  container.innerHTML = `<div class="chart-loading">Loading trendâ€¦</div>`;
+  container.innerHTML = `<div class="chart-loading">Loading trend…</div>`;
 
   let points = null;
   let isLive = false;
@@ -411,7 +411,7 @@ async function loadTrend(city, range, containerId, noteId) {
     points = range === "24h" ? syntheticHistory24h(city) : syntheticHistory7d(city);
   }
 
-  note.textContent = isLive ? "Live from sheet" : "Demo pattern â€” connect backend for real history";
+  note.textContent = isLive ? "Live from sheet" : "Demo pattern — connect backend for real history";
 
   const labelFmt = range === "24h"
     ? p => new Date(p.t).toLocaleTimeString("en-IN", { hour: "2-digit", hour12: true }).replace(":00", "")
@@ -450,7 +450,7 @@ function syntheticHistory24h(city) {
   for (let i = 23; i >= 0; i--) {
     const t = new Date(now.getTime() - i * 3600000);
     const mult = HOUR_MULTIPLIER[t.getHours()];
-    const noise = 0.92 + rand() * 0.16; // Â±8%
+    const noise = 0.92 + rand() * 0.16; // ±8%
     points.push({ t: t.toISOString(), index: round2(base * mult * noise) });
   }
   return points;
@@ -540,16 +540,38 @@ function wireControls() {
 
 /* ---------- Tab navigation ---------- */
 
+function switchView(name) {
+  document.querySelectorAll(".bottom-nav button").forEach(b => b.classList.toggle("active", b.dataset.view === name));
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  const el = document.getElementById(`view-${name}`);
+  if (el) el.classList.add("active");
+}
+
 function wireNav() {
   document.querySelectorAll(".bottom-nav button").forEach(btn => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".bottom-nav button").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
-      document.getElementById(`view-${btn.dataset.view}`).classList.add("active");
+      switchView(btn.dataset.view);
       window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     });
   });
+}
+
+/* ---------- Deep links: #methodology/#contact hash, ?open=<citySlug> ---------- */
+/* Lets city pages (city/<slug>/index.html) link meaningfully into this
+   app instead of always dropping the visitor on a generic homepage. */
+
+function applyInitialHashView() {
+  const hash = (location.hash || "").replace("#", "");
+  if (hash === "methodology" || hash === "contact") {
+    switchView(hash);
+  }
+}
+
+function applyOpenCityParam() {
+  const slug = new URLSearchParams(location.search).get("open");
+  if (slug && state.raw && state.raw.cities.some(c => c.id === slug)) {
+    openSheet(slug);
+  }
 }
 
 /* ---------- Feedback (mailto) ---------- */
@@ -575,6 +597,9 @@ document.addEventListener("DOMContentLoaded", () => {
   try { wireControls(); } catch (err) { console.error("wireControls failed:", err); }
   try { wireNav(); } catch (err) { console.error("wireNav failed:", err); }
   try { wireFeedback(); } catch (err) { console.error("wireFeedback failed:", err); }
-  loadData();
+  try { applyInitialHashView(); } catch (err) { console.error("applyInitialHashView failed:", err); }
+  loadData().then(() => {
+    try { applyOpenCityParam(); } catch (err) { console.error("applyOpenCityParam failed:", err); }
+  });
   scheduleRefresh();
 });

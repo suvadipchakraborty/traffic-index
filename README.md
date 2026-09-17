@@ -244,7 +244,75 @@ static host works: GitHub Pages, Netlify, Vercel, Cloudflare Pages, or a
 plain folder upload to your existing hosting/cPanel. Point your domain's
 DNS at whichever you choose and upload the four files/folders above.
 
-## 8. Ideas for a v3 (not built yet, scoped for later)
+## 8. SEO: social share cards + per-city pages
+
+**⚠️ One required step before any of this works: find-and-replace
+`SITE_URL_PLACEHOLDER` with your real domain** (e.g. `itpl.yourdomain.com`,
+no `https://`, no trailing slash) across every file that has it —
+`index.html`, `sitemap.xml`, `robots.txt`, and
+`scripts/generate-city-pages.py`. WhatsApp, Slack, and Google all require
+**absolute** URLs for `og:image` and canonical links — a relative path
+silently fails to show a preview at all, with no error to tell you why.
+
+### Social share cards (Open Graph)
+`index.html`'s `<head>` now has `og:title`, `og:description`, `og:image`,
+`og:url`, and matching `twitter:*` tags, plus a shared social-card image
+at `assets/og/og-home.png`. Once the placeholder is fixed, pasting your
+homepage link into WhatsApp or Slack should show a rich preview with the
+ITPL branding.
+
+**Why there's no live/dynamic OG image:** this is a static site with no
+server, so there's no way to render "today's index" into an image on
+request — that needs either a serverless function (Netlify Functions, for
+example) or a third-party dynamic-image service, both of which are real
+options later but add real complexity and (for Netlify Functions
+specifically) a paid-tier dependency you may not want given the account
+issue you're already navigating. For now, the cards show fixed branding —
+still a big upgrade over the blank/generic preview you'd get without any
+tags at all.
+
+### Per-city pages
+Each tracked city now has its own real, separate HTML file at
+`city/<slug>/index.html` (e.g. `city/mumbai/index.html`) — not a
+JavaScript route, an actual file. That distinction matters: WhatsApp/Slack
+previews and most search crawlers don't run JavaScript to decide what a
+page is about, so a single-page app with a `#hash` or `?query` router
+would show identical, generic content for every city regardless of which
+URL was shared. These are genuinely separate pages with their own
+`<title>`, meta description, and OG image (`assets/og/og-<slug>.png`),
+built to target searches like "Mumbai traffic index."
+
+**How each city page works:** static, crawlable text (a description of
+that city plus its 8 real border points) is baked in at generation time,
+so search engines have real unique content to index immediately. A small
+script, `js/city.js`, then fetches your live backend on page load and
+fills in the current index number — same live-data pattern as the main
+app, just on a simpler page. A button links back to
+`index.html?open=<slug>`, which auto-opens that city's full detail sheet
+(trend charts included) in the main app — `js/app.js` already supports
+this via `applyOpenCityParam()`. The bottom nav's Methodology/Contact
+links go to `index.html#methodology` / `index.html#contact`, which
+`applyInitialHashView()` in `app.js` opens directly to the right tab.
+
+**Regenerating these pages:** `scripts/generate-city-pages.py` builds all
+10 from `data/sample-cities.json`. Re-run it (`python3
+scripts/generate-city-pages.py`) any time you add/remove a tracked city or
+change border points, so these pages stay in sync — it always overwrites
+the existing city folders, safe to run repeatedly.
+
+**Keeping the API URL in sync:** `js/city.js` has its own copy of
+`DATA_SOURCE.API_URL`, deliberately kept separate from `js/app.js` so a
+mistake on the simpler city pages can never take down the main app. If you
+ever redeploy your Apps Script and get a new `/exec` URL, update it in
+**both** files.
+
+### sitemap.xml + robots.txt
+Both are at the project root and already list the homepage and all 10
+city pages. Submit `sitemap.xml` to Google Search Console once your
+domain is live — this is usually the fastest way to get new pages crawled
+rather than waiting for Google to discover them organically.
+
+## 9. Ideas for a v3 (not built yet, scoped for later)
 
 - **City comparison** — pick 2–3 cities side by side.
 - **Push/email alerts** — notify when a city crosses into "Severe."

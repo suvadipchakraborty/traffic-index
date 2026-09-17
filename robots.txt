@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://work-from-traffic.netlify.app/sitemap.xml
